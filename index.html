@@ -15,7 +15,7 @@
 
 body{
 margin:0;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
 background:#000;
 color:#fff;
 }
@@ -98,12 +98,33 @@ font-size:28px;
 margin:10px 0;
 }
 
+#perfectDay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#000;
+display:none;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+font-size:28px;
+font-weight:700;
+z-index:999;
+}
+
 </style>
 </head>
 
 <body>
 
 <header>💪 Rotina do Shape</header>
+
+<div id="perfectDay">
+🏆 DIA PERFEITO<br>
++1 STREAK
+</div>
 
 <!-- DASHBOARD -->
 
@@ -165,7 +186,7 @@ Carregando...
 
 </div>
 
-<!-- CONFIGURAÇÕES -->
+<!-- CONFIG -->
 
 <div class="page" id="config">
 
@@ -183,7 +204,7 @@ Ativar notificações
 
 <div class="card">
 
-🧹 Resetar progresso do dia
+🧹 Resetar tarefas do dia
 
 <br>
 
@@ -194,8 +215,6 @@ Resetar tarefas
 </div>
 
 </div>
-
-<!-- NAVBAR -->
 
 <div class="nav">
 
@@ -226,6 +245,19 @@ p.classList.remove("active");
 });
 
 document.getElementById(id).classList.add("active");
+
+}
+
+const today=new Date().toDateString();
+
+let savedDate=localStorage.getItem("date");
+
+if(savedDate!==today){
+
+localStorage.setItem("date",today);
+localStorage.setItem("tasksDone","[]");
+localStorage.setItem("water","0");
+localStorage.setItem("streakCounted","false");
 
 }
 
@@ -271,6 +303,7 @@ localStorage.setItem("tasksDone",JSON.stringify(tasksDone));
 
 updateProgress();
 updateNext();
+checkPerfectDay();
 
 }
 
@@ -327,9 +360,44 @@ setInterval(updateNext,60000);
 
 updateNext();
 
-let streak=localStorage.getItem("streak")||0;
+let streak=parseInt(localStorage.getItem("streak")||0);
 
 document.getElementById("streak").innerText=streak;
+
+function checkPerfectDay(){
+
+if(tasksDone.length===rotina.length){
+
+let counted=localStorage.getItem("streakCounted");
+
+if(counted!=="true"){
+
+streak++;
+
+localStorage.setItem("streak",streak);
+localStorage.setItem("streakCounted","true");
+
+document.getElementById("streak").innerText=streak;
+
+showPerfect();
+
+}
+
+}
+
+}
+
+function showPerfect(){
+
+let el=document.getElementById("perfectDay");
+
+el.style.display="flex";
+
+setTimeout(()=>{
+el.style.display="none";
+},3000);
+
+}
 
 let water=parseInt(localStorage.getItem("water")||0);
 
