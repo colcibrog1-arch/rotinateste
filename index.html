@@ -479,6 +479,124 @@ alert("Tarefa removida");
 renderEditar();
 renderExcluir();
 
+/* ---------- SISTEMA DE TAREFAS ---------- */
+
+let tasksDone = JSON.parse(localStorage.getItem("tasksDone") || "[]");
+
+function done(i){
+
+let card=document.getElementById("task"+i);
+
+card.classList.toggle("done");
+
+if(tasksDone.includes(i)){
+tasksDone=tasksDone.filter(t=>t!==i);
+}else{
+tasksDone.push(i);
+}
+
+localStorage.setItem("tasksDone",JSON.stringify(tasksDone));
+
+updateProgress();
+updateNext();
+
+}
+
+function updateProgress(){
+
+let percent=Math.floor((tasksDone.length/rotina.length)*100);
+
+let bar=document.getElementById("progress");
+let text=document.getElementById("progressText");
+
+if(bar) bar.style.width=percent+"%";
+if(text) text.innerText=percent+"%";
+
+}
+
+function updateNext(){
+
+let next=document.getElementById("nextTask");
+
+if(!next) return;
+
+if(tasksDone.length===rotina.length){
+
+next.innerText="✅ Todas as tarefas concluídas";
+
+return;
+
+}
+
+let now=new Date();
+let current=now.getHours()*60+now.getMinutes();
+
+for(let r of rotina){
+
+let parts=r.time.split(":");
+let t=parseInt(parts[0])*60+parseInt(parts[1]);
+
+if(t>current){
+
+next.innerText=r.time+" - "+r.task;
+
+return;
+
+}
+
+}
+
+}
+
+updateProgress();
+updateNext();
+
+/* ---------- SISTEMA DE ÁGUA ---------- */
+
+let water=parseInt(localStorage.getItem("water")||0);
+
+function updateWater(){
+
+let el=document.getElementById("waterCount");
+
+if(el){
+el.innerText=water+" / 8";
+}
+
+}
+
+function addWater(){
+
+if(water<8){
+water++;
+localStorage.setItem("water",water);
+updateWater();
+}
+
+}
+
+function resetWater(){
+
+water=0;
+localStorage.setItem("water",water);
+updateWater();
+
+}
+
+updateWater();
+
+/* ---------- NOTIFICAÇÕES ---------- */
+
+function ativarAvisos(){
+
+if(Notification.permission!=="granted"){
+Notification.requestPermission();
+}else{
+alert("Notificações já ativadas");
+}
+
+}
+
 </script>
 
 </body>
