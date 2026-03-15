@@ -344,7 +344,7 @@ function renderTasks(){
   const tasksDiv=document.getElementById("tasks");
   tasksDiv.innerHTML="";
   tarefasHoje().forEach((r,i)=>{
-    let idUnico = r.time + "|" + r.task;
+    let idUnico = r.time + "|" + r.task; // ID único
     let doneClass = tasksDone.includes(idUnico) ? "done" : "";
 
     let card=document.createElement("div");
@@ -444,6 +444,7 @@ function ativarAvisos(){
 
 function verificarNotificacoes(){
   if(Notification.permission!=="granted") return;
+
   const agora=new Date();
   const horaAtual = agora.getHours().toString().padStart(2,"0");
   const minutoAtual = agora.getMinutes().toString().padStart(2,"0");
@@ -451,10 +452,13 @@ function verificarNotificacoes(){
 
   let notificadas = JSON.parse(localStorage.getItem("notificadas")||"[]");
 
-  tarefasHoje().forEach((t,i)=>{
+  tarefasHoje().forEach(t=>{
     let id = t.time + "|" + t.task;
     if(t.time <= horarioAtual && !notificadas.includes(id)){
-      new Notification("Rotina do Shape 💪",{ body: t.task, icon:"icon-192.png" });
+      new Notification("Rotina do Shape 💪",{
+        body: t.task,
+        icon:"icon-192.png"
+      });
       notificadas.push(id);
     }
   });
@@ -462,7 +466,8 @@ function verificarNotificacoes(){
   localStorage.setItem("notificadas", JSON.stringify(notificadas));
 }
 
-/* render inicial */
+/* funções já existentes para criar/editar/excluir permanecem intactas */
+
 renderTasks();
 updateProgress();
 updateNext();
