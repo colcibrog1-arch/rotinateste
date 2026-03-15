@@ -22,10 +22,17 @@ color:#fff;
 
 header{
 text-align:center;
-padding:25px 10px;
+padding:20px;
 font-size:26px;
 font-weight:700;
 border-bottom:1px solid #222;
+}
+
+.clock{
+text-align:center;
+font-size:16px;
+opacity:.8;
+margin-top:5px;
 }
 
 .streak{
@@ -34,19 +41,45 @@ font-size:18px;
 margin:15px 0;
 }
 
+.progressBox{
+width:80%;
+margin:10px auto 20px auto;
+}
+
+.progressBar{
+width:100%;
+height:14px;
+background:#222;
+border-radius:10px;
+overflow:hidden;
+}
+
+.progress{
+height:100%;
+background:#fff;
+width:0%;
+transition:width .4s;
+}
+
+.progressText{
+text-align:center;
+margin-top:6px;
+font-size:13px;
+}
+
 .week{
 display:flex;
 justify-content:center;
-gap:10px;
+gap:8px;
 margin-bottom:20px;
 }
 
 .day{
 background:#111;
-padding:8px 12px;
-border-radius:8px;
+padding:7px 10px;
+border-radius:7px;
 border:1px solid #222;
-font-size:13px;
+font-size:12px;
 }
 
 .doneDay{
@@ -66,6 +99,11 @@ border-radius:14px;
 padding:16px;
 margin-bottom:12px;
 border:1px solid #1f1f1f;
+transition:.2s;
+}
+
+.card:hover{
+transform:scale(1.01);
 }
 
 .time{
@@ -88,10 +126,11 @@ padding:8px 14px;
 border-radius:8px;
 font-size:14px;
 font-weight:600;
+cursor:pointer;
 }
 
 button:active{
-transform:scale(.97);
+transform:scale(.95);
 }
 
 .done{
@@ -126,8 +165,22 @@ font-weight:600;
 
 <header>💪 Rotina do Shape</header>
 
+<div class="clock" id="clock"></div>
+
 <div class="streak">
 🔥 Dias seguidos: <span id="streak">0</span>
+</div>
+
+<div class="progressBox">
+
+<div class="progressBar">
+<div class="progress" id="progress"></div>
+</div>
+
+<div class="progressText" id="progressText">
+0% completo
+</div>
+
 </div>
 
 <div class="week">
@@ -184,6 +237,20 @@ localStorage.setItem("tasksDone",JSON.stringify([]));
 
 }
 
+let weekReset=localStorage.getItem("weekReset");
+
+let now=new Date();
+let dayNow=now.getDay();
+
+if(dayNow===1 && weekReset!==today){
+
+localStorage.setItem("weekHistory",JSON.stringify({}));
+localStorage.setItem("weekReset",today);
+
+history={};
+
+}
+
 function updateWeek(){
 
 for(let i=1;i<=5;i++){
@@ -232,6 +299,8 @@ card.classList.add("done");
 
 });
 
+updateProgress();
+
 }
 
 renderTasks();
@@ -258,7 +327,22 @@ doneTasks=doneTasks.filter(t=>t!==i);
 
 localStorage.setItem("tasksDone",JSON.stringify(doneTasks));
 
+updateProgress();
+
 checkComplete();
+
+}
+
+function updateProgress(){
+
+let total=rotina.length;
+let done=document.querySelectorAll(".done").length;
+
+let percent=Math.floor((done/total)*100);
+
+document.getElementById("progress").style.width=percent+"%";
+
+document.getElementById("progressText").innerText=percent+"% completo";
 
 }
 
@@ -356,6 +440,21 @@ alert("Hora de: "+r.task);
 }
 
 setInterval(checkTime,60000);
+
+function updateClock(){
+
+const now=new Date();
+
+let h=String(now.getHours()).padStart(2,'0');
+let m=String(now.getMinutes()).padStart(2,'0');
+
+document.getElementById("clock").innerText="🕒 "+h+":"+m;
+
+}
+
+setInterval(updateClock,1000);
+
+updateClock();
 
 </script>
 
