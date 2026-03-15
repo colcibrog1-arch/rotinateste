@@ -317,7 +317,7 @@ localStorage.setItem("date",today);
 localStorage.setItem("tasksDone","[]");
 
 }
-  
+
 function tarefasHoje(){
 let hoje=new Date().getDay();
 return rotina.filter(t=>!t.days || t.days.includes(hoje));
@@ -603,17 +603,55 @@ updateWater();
 
 updateWater();
 
-/* notificações */
+/* notificações otimizadas para PWA iOS */
 
 function ativarAvisos(){
-
-if(Notification.permission!=="granted"){
-Notification.requestPermission();
-}else{
-alert("Notificações já ativadas");
+  if(Notification.permission!=="granted"){
+    Notification.requestPermission().then(p=>{
+      if(p==="granted") alert("Notificações ativadas!");
+    });
+  } else {
+    alert("Notificações já ativadas");
+  }
 }
 
+function verificarNotificacoes(){
+  if(Notification.permission!=="granted") return;
+
+  const agora = new Date();
+  const horaAtual = agora.getHours().toString().padStart(2,"0");
+  const minutoAtual = agora.getMinutes().toString().padStart(2,"0");
+  const horarioAtual = horaAtual + ":" + minutoAtual;
+
+  // lista de tarefas já notificadas hoje
+  let notificadas = JSON.parse(localStorage.getItem("notificadas")||"[]");
+
+  tarefasHoje().forEach(t=>{
+    const id = t.time + "|" + t.task;
+
+    // dispara notificação se horário passou e ainda não notificou
+    if(t.time <= horarioAtual && !notificadas.includes(id)){
+      new Notification("Rotina do Shape 💪", {
+        body: t.task,
+        icon: "icon-192.png"
+      });
+
+      notificadas.push(id); // marca como notificada
+    }
+  });
+
+  localStorage.setItem("notificadas", JSON.stringify(notificadas));
 }
+
+// reset diário junto com tasksDone
+if(savedDate!==today){
+  localStorage.setItem("date", today);
+  localStorage.setItem("tasksDone", "[]");
+  localStorage.setItem("notificadas", "[]"); // reset notificações
+}
+
+// checagem mais frequente para background multitarefa
+setInterval(verificarNotificacoes, 10000); // 10 segundos
 
 /* INICIALIZAÇÃO */
 
@@ -626,33 +664,6 @@ updateNext();
 
 updateWater();
 
-setInterval(verificarNotificacoes,30000);
-
-function verificarNotificacoes(){
-
-if(Notification.permission!=="granted") return;
-
-let agora=new Date();
-let horaAtual=agora.getHours().toString().padStart(2,"0");
-let minutoAtual=agora.getMinutes().toString().padStart(2,"0");
-
-let horarioAtual=horaAtual+":"+minutoAtual;
-
-tarefasHoje().forEach(t=>{
-
-if(t.time===horarioAtual){
-
-new Notification("Rotina do Shape 💪",{
-body:t.task,
-icon:"icon-192.png"
-});
-
-}
-
-});
-
-}
-  
 </script>
 
 </body>
