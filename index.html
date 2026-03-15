@@ -22,28 +22,44 @@ color:#fff;
 
 header{
 text-align:center;
-padding:20px;
-font-size:26px;
+padding:18px;
+font-size:24px;
 font-weight:700;
 border-bottom:1px solid #222;
 }
 
-.clock{
-text-align:center;
-font-size:16px;
-opacity:.8;
-margin-top:5px;
+.page{
+display:none;
+padding:20px;
+max-width:500px;
+margin:auto;
 }
 
-.streak{
-text-align:center;
-font-size:18px;
-margin:15px 0;
+.active{
+display:block;
 }
 
-.progressBox{
-width:80%;
-margin:10px auto 20px auto;
+.card{
+background:#0f0f0f;
+border:1px solid #222;
+border-radius:12px;
+padding:16px;
+margin-bottom:14px;
+}
+
+button{
+background:#fff;
+border:none;
+padding:8px 14px;
+border-radius:8px;
+font-weight:600;
+margin-top:10px;
+cursor:pointer;
+}
+
+.done{
+opacity:.4;
+text-decoration:line-through;
 }
 
 .progressBar{
@@ -52,33 +68,26 @@ height:14px;
 background:#222;
 border-radius:10px;
 overflow:hidden;
+margin-top:10px;
 }
 
 .progress{
 height:100%;
 background:#fff;
 width:0%;
-transition:width .4s;
-}
-
-.progressText{
-text-align:center;
-margin-top:6px;
-font-size:13px;
 }
 
 .week{
 display:flex;
 justify-content:center;
 gap:8px;
-margin-bottom:20px;
+margin:20px 0;
 }
 
 .day{
 background:#111;
-padding:7px 10px;
-border-radius:7px;
-border:1px solid #222;
+padding:6px 10px;
+border-radius:6px;
 font-size:12px;
 }
 
@@ -87,75 +96,25 @@ background:#fff;
 color:#000;
 }
 
-.container{
-max-width:500px;
-margin:auto;
-padding:10px 16px 40px;
+.nav{
+position:fixed;
+bottom:0;
+width:100%;
+background:#0a0a0a;
+border-top:1px solid #222;
+display:flex;
+justify-content:space-around;
+padding:10px 0;
 }
 
-.card{
-background:#0f0f0f;
-border-radius:14px;
-padding:16px;
-margin-bottom:12px;
-border:1px solid #1f1f1f;
-transition:.2s;
-}
-
-.card:hover{
-transform:scale(1.01);
-}
-
-.time{
-font-size:18px;
-font-weight:700;
-}
-
-.task{
-margin-top:6px;
-font-size:15px;
-opacity:.85;
-}
-
-button{
-margin-top:10px;
-background:#fff;
-border:none;
-color:#000;
-padding:8px 14px;
-border-radius:8px;
+.nav div{
+cursor:pointer;
 font-size:14px;
-font-weight:600;
-cursor:pointer;
 }
 
-button:active{
-transform:scale(.95);
-}
-
-.done{
-opacity:.35;
-text-decoration:line-through;
-}
-
-.complete{
-text-align:center;
-font-size:20px;
-margin-top:20px;
-color:#fff;
-}
-
-.install{
-display:block;
-margin:12px auto 20px auto;
-background:#fff;
-color:#000;
-padding:10px 18px;
-border-radius:10px;
-text-align:center;
-width:200px;
-cursor:pointer;
-font-weight:600;
+.water{
+font-size:28px;
+margin:10px 0;
 }
 
 </style>
@@ -165,23 +124,39 @@ font-weight:600;
 
 <header>💪 Rotina do Shape</header>
 
-<div class="clock" id="clock"></div>
+<!-- DASHBOARD -->
 
-<div class="streak">
-🔥 Dias seguidos: <span id="streak">0</span>
+<div class="page active" id="home">
+
+<div class="card">
+🔥 Streak: <span id="streak">0</span> dias
 </div>
 
-<div class="progressBox">
+<div class="card">
+📊 Progresso hoje
 
 <div class="progressBar">
 <div class="progress" id="progress"></div>
 </div>
 
-<div class="progressText" id="progressText">
-0% completo
+<div id="progressText">0%</div>
+
+</div>
+
+<div class="card">
+⏰ Próxima tarefa
+
+<div id="nextTask">
+Carregando...
 </div>
 
 </div>
+
+</div>
+
+<!-- ROTINA -->
+
+<div class="page" id="rotina">
 
 <div class="week">
 <div class="day" id="d1">SEG</div>
@@ -191,119 +166,107 @@ font-weight:600;
 <div class="day" id="d5">SEX</div>
 </div>
 
-<div class="container">
-
-<div class="install" onclick="ativarAvisos()">
-Ativar lembretes
-</div>
-
 <div id="tasks"></div>
 
-<div id="complete" class="complete"></div>
+</div>
+
+<!-- AGUA -->
+
+<div class="page" id="agua">
+
+<div class="card">
+
+💧 Água hoje
+
+<div class="water" id="waterCount">
+0 / 8
+</div>
+
+<button onclick="addWater()">+1 copo</button>
+
+<button onclick="resetWater()">Reset</button>
+
+</div>
+
+</div>
+
+<!-- STATS -->
+
+<div class="page" id="stats">
+
+<div class="card">
+📊 Dias completos
+
+<span id="daysComplete">0</span>
+</div>
+
+<div class="card">
+🔥 Streak atual
+
+<span id="streakStat">0</span>
+</div>
+
+</div>
+
+<!-- NAVBAR -->
+
+<div class="nav">
+
+<div onclick="openPage('home')">🏠</div>
+<div onclick="openPage('rotina')">📋</div>
+<div onclick="openPage('agua')">💧</div>
+<div onclick="openPage('stats')">📊</div>
 
 </div>
 
 <script>
 
-if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('service-worker.js');
-}
-
 const rotina=[
 
-{time:"05:10",task:"Hipercalórico + 5g creatina"},
-{time:"06:30",task:"Whey + 5g creatina"},
+{time:"05:10",task:"Hipercalórico + creatina"},
+{time:"06:30",task:"Whey + creatina"},
 {time:"10:00",task:"Fruta"},
-{time:"12:00",task:"Almoço + 5g creatina"},
-{time:"19:00",task:"Lanche na faculdade"},
-{time:"23:00",task:"Jantar + creatina + Cobavital + Complexo B"}
+{time:"12:00",task:"Almoço + creatina"},
+{time:"19:00",task:"Lanche"},
+{time:"23:00",task:"Jantar + suplementos"}
 
 ];
 
-const container=document.getElementById("tasks");
+function openPage(id){
 
-let streak=localStorage.getItem("streak") || 0;
-document.getElementById("streak").innerText=streak;
+document.querySelectorAll(".page").forEach(p=>{
+p.classList.remove("active");
+});
 
-let history=JSON.parse(localStorage.getItem("weekHistory") || "{}");
-
-let today=new Date().toDateString();
-let savedDate=localStorage.getItem("taskDate");
-
-if(savedDate!==today){
-
-localStorage.setItem("taskDate",today);
-localStorage.setItem("tasksDone",JSON.stringify([]));
+document.getElementById(id).classList.add("active");
 
 }
 
-let weekReset=localStorage.getItem("weekReset");
+const tasksDiv=document.getElementById("tasks");
 
-let now=new Date();
-let dayNow=now.getDay();
-
-if(dayNow===1 && weekReset!==today){
-
-localStorage.setItem("weekHistory",JSON.stringify({}));
-localStorage.setItem("weekReset",today);
-
-history={};
-
-}
-
-function updateWeek(){
-
-for(let i=1;i<=5;i++){
-
-if(history[i]){
-document.getElementById("d"+i).classList.add("doneDay");
-}
-
-}
-
-}
-
-updateWeek();
-
-function renderTasks(){
-
-container.innerHTML="";
+let tasksDone=JSON.parse(localStorage.getItem("tasksDone")||"[]");
 
 rotina.forEach((r,i)=>{
 
-let div=document.createElement("div");
-div.className="card";
-div.id="task"+i;
+let card=document.createElement("div");
+card.className="card";
+card.id="task"+i;
 
-div.innerHTML=`
-
-<div class="time">${r.time}</div>
-<div class="task">${r.task}</div>
+card.innerHTML=`
+<b>${r.time}</b>
+<br>
+${r.task}
+<br>
 <button onclick="done(${i})">Concluir</button>
-
 `;
 
-container.appendChild(div);
+tasksDiv.appendChild(card);
 
-});
-
-let doneTasks=JSON.parse(localStorage.getItem("tasksDone") || "[]");
-
-doneTasks.forEach(i=>{
-
-let card=document.getElementById("task"+i);
-
-if(card){
+if(tasksDone.includes(i)){
 card.classList.add("done");
 }
 
 });
-
-updateProgress();
-
-}
-
-renderTasks();
 
 function done(i){
 
@@ -311,150 +274,94 @@ let card=document.getElementById("task"+i);
 
 card.classList.toggle("done");
 
-let doneTasks=JSON.parse(localStorage.getItem("tasksDone") || "[]");
-
-if(card.classList.contains("done")){
-
-if(!doneTasks.includes(i)){
-doneTasks.push(i);
-}
-
+if(tasksDone.includes(i)){
+tasksDone=tasksDone.filter(t=>t!==i);
 }else{
-
-doneTasks=doneTasks.filter(t=>t!==i);
-
+tasksDone.push(i);
 }
 
-localStorage.setItem("tasksDone",JSON.stringify(doneTasks));
+localStorage.setItem("tasksDone",JSON.stringify(tasksDone));
 
 updateProgress();
-
-checkComplete();
 
 }
 
 function updateProgress(){
 
-let total=rotina.length;
-let done=document.querySelectorAll(".done").length;
-
-let percent=Math.floor((done/total)*100);
+let percent=Math.floor((tasksDone.length/rotina.length)*100);
 
 document.getElementById("progress").style.width=percent+"%";
 
-document.getElementById("progressText").innerText=percent+"% completo";
+document.getElementById("progressText").innerText=percent+"%";
 
 }
 
-function checkComplete(){
+updateProgress();
 
-let total=rotina.length;
-let done=document.querySelectorAll(".done").length;
+function updateNext(){
 
-if(done===total){
+let now=new Date();
 
-document.getElementById("complete").innerHTML="🏆 Rotina completa hoje!";
+let current=now.getHours()*60+now.getMinutes();
 
-let todayDate=new Date();
-let todayStr=todayDate.toDateString();
-let last=localStorage.getItem("lastComplete");
+for(let r of rotina){
 
-let day=todayDate.getDay();
+let parts=r.time.split(":");
 
-if(day>=1 && day<=5){
+let t=parseInt(parts[0])*60+parseInt(parts[1]);
 
-history[day]=true;
+if(t>current){
 
-localStorage.setItem("weekHistory",JSON.stringify(history));
+document.getElementById("nextTask").innerText=
+r.time+" - "+r.task;
 
-updateWeek();
+return;
 
 }
 
-if(last!==todayStr){
+}
 
-streak++;
+document.getElementById("nextTask").innerText="Dia completo";
 
-localStorage.setItem("streak",streak);
+}
 
-localStorage.setItem("lastComplete",todayStr);
+setInterval(updateNext,60000);
+
+updateNext();
+
+let streak=localStorage.getItem("streak")||0;
 
 document.getElementById("streak").innerText=streak;
+document.getElementById("streakStat").innerText=streak;
 
+let water=parseInt(localStorage.getItem("water")||0);
+
+function updateWater(){
+
+document.getElementById("waterCount").innerText=
+water+" / 8";
+
+}
+
+function addWater(){
+
+if(water<8){
+water++;
+localStorage.setItem("water",water);
+updateWater();
 }
 
 }
 
-}
+function resetWater(){
 
-function ativarAvisos(){
-
-if(Notification.permission!=="granted"){
-
-Notification.requestPermission().then(p=>{
-alert("Permissão: "+p);
-});
-
-}else{
-
-alert("Avisos já ativados");
+water=0;
+localStorage.setItem("water",water);
+updateWater();
 
 }
 
-}
-
-function checkTime(){
-
-const now=new Date();
-const day=now.getDay();
-
-if(day===0 || day===6){
-return;
-}
-
-const h=String(now.getHours()).padStart(2,'0');
-const m=String(now.getMinutes()).padStart(2,'0');
-
-const current=h+":"+m;
-
-rotina.forEach(r=>{
-
-if(r.time===current){
-
-if(Notification.permission==="granted"){
-
-new Notification("Rotina do Shape",{
-body:r.task
-});
-
-}else{
-
-alert("Hora de: "+r.task);
-
-}
-
-}
-
-});
-
-}
-
-setInterval(checkTime,60000);
-
-function updateClock(){
-
-const now=new Date();
-
-let h=String(now.getHours()).padStart(2,'0');
-let m=String(now.getMinutes()).padStart(2,'0');
-
-document.getElementById("clock").innerText="🕒 "+h+":"+m;
-
-}
-
-setInterval(updateClock,1000);
-
-updateClock();
+updateWater();
 
 </script>
 
