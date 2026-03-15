@@ -77,25 +77,6 @@ background:#fff;
 width:0%;
 }
 
-.week{
-display:flex;
-justify-content:center;
-gap:8px;
-margin:20px 0;
-}
-
-.day{
-background:#111;
-padding:6px 10px;
-border-radius:6px;
-font-size:12px;
-}
-
-.doneDay{
-background:#fff;
-color:#000;
-}
-
 .nav{
 position:fixed;
 bottom:0;
@@ -133,6 +114,7 @@ margin:10px 0;
 </div>
 
 <div class="card">
+
 📊 Progresso hoje
 
 <div class="progressBar">
@@ -144,6 +126,7 @@ margin:10px 0;
 </div>
 
 <div class="card">
+
 ⏰ Próxima tarefa
 
 <div id="nextTask">
@@ -158,19 +141,11 @@ Carregando...
 
 <div class="page" id="rotina">
 
-<div class="week">
-<div class="day" id="d1">SEG</div>
-<div class="day" id="d2">TER</div>
-<div class="day" id="d3">QUA</div>
-<div class="day" id="d4">QUI</div>
-<div class="day" id="d5">SEX</div>
-</div>
-
 <div id="tasks"></div>
 
 </div>
 
-<!-- AGUA -->
+<!-- ÁGUA -->
 
 <div class="page" id="agua">
 
@@ -190,20 +165,32 @@ Carregando...
 
 </div>
 
-<!-- STATS -->
+<!-- CONFIGURAÇÕES -->
 
-<div class="page" id="stats">
+<div class="page" id="config">
 
 <div class="card">
-📊 Dias completos
 
-<span id="daysComplete">0</span>
+🔔 Notificações
+
+<br>
+
+<button onclick="ativarAvisos()">
+Ativar notificações
+</button>
+
 </div>
 
 <div class="card">
-🔥 Streak atual
 
-<span id="streakStat">0</span>
+🧹 Resetar progresso do dia
+
+<br>
+
+<button onclick="resetDay()">
+Resetar tarefas
+</button>
+
 </div>
 
 </div>
@@ -215,7 +202,7 @@ Carregando...
 <div onclick="openPage('home')">🏠</div>
 <div onclick="openPage('rotina')">📋</div>
 <div onclick="openPage('agua')">💧</div>
-<div onclick="openPage('stats')">📊</div>
+<div onclick="openPage('config')">⚙️</div>
 
 </div>
 
@@ -283,6 +270,7 @@ tasksDone.push(i);
 localStorage.setItem("tasksDone",JSON.stringify(tasksDone));
 
 updateProgress();
+updateNext();
 
 }
 
@@ -299,6 +287,15 @@ document.getElementById("progressText").innerText=percent+"%";
 updateProgress();
 
 function updateNext(){
+
+if(tasksDone.length===rotina.length){
+
+document.getElementById("nextTask").innerText=
+"✅ Todas as tarefas do dia foram concluídas";
+
+return;
+
+}
 
 let now=new Date();
 
@@ -321,7 +318,8 @@ return;
 
 }
 
-document.getElementById("nextTask").innerText="Dia completo";
+document.getElementById("nextTask").innerText=
+"⚠️ Ainda existem tarefas pendentes";
 
 }
 
@@ -332,7 +330,6 @@ updateNext();
 let streak=localStorage.getItem("streak")||0;
 
 document.getElementById("streak").innerText=streak;
-document.getElementById("streakStat").innerText=streak;
 
 let water=parseInt(localStorage.getItem("water")||0);
 
@@ -362,6 +359,23 @@ updateWater();
 }
 
 updateWater();
+
+function ativarAvisos(){
+
+if(Notification.permission!=="granted"){
+Notification.requestPermission();
+}else{
+alert("Notificações já ativadas");
+}
+
+}
+
+function resetDay(){
+
+localStorage.setItem("tasksDone","[]");
+location.reload();
+
+}
 
 </script>
 
