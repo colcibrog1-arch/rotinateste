@@ -8,9 +8,6 @@
 
 <title>Rotina do Shape</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
-
 <style>
 
 body{
@@ -33,6 +30,7 @@ display:none;
 padding:20px;
 max-width:500px;
 margin:auto;
+padding-bottom:120px;
 }
 
 .active{
@@ -77,20 +75,50 @@ background:#fff;
 width:0%;
 }
 
+/* NAVBAR NOVA */
+
 .nav{
 position:fixed;
 bottom:0;
+left:0;
 width:100%;
 background:#0a0a0a;
 border-top:1px solid #222;
+
 display:flex;
-justify-content:space-around;
-padding:10px 0;
+justify-content:center;
+align-items:center;
+gap:30px;
+
+padding:16px 0 calc(22px + env(safe-area-inset-bottom));
+
+font-size:28px;
 }
 
 .nav div{
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+width:60px;
+height:60px;
+
+border-radius:14px;
+
 cursor:pointer;
-font-size:14px;
+
+transition:0.2s;
+
+}
+
+.nav div:hover{
+background:#1a1a1a;
+}
+
+.activeTab{
+background:#ffffff;
+color:#000;
 }
 
 .water{
@@ -109,7 +137,7 @@ display:none;
 align-items:center;
 justify-content:center;
 flex-direction:column;
-font-size:28px;
+font-size:30px;
 font-weight:700;
 z-index:999;
 }
@@ -126,7 +154,7 @@ z-index:999;
 +1 STREAK
 </div>
 
-<!-- DASHBOARD -->
+<!-- HOME -->
 
 <div class="page active" id="home">
 
@@ -179,7 +207,6 @@ Carregando...
 </div>
 
 <button onclick="addWater()">+1 copo</button>
-
 <button onclick="resetWater()">Reset</button>
 
 </div>
@@ -216,12 +243,14 @@ Resetar tarefas
 
 </div>
 
+<!-- NAV -->
+
 <div class="nav">
 
-<div onclick="openPage('home')">🏠</div>
-<div onclick="openPage('rotina')">📋</div>
-<div onclick="openPage('agua')">💧</div>
-<div onclick="openPage('config')">⚙️</div>
+<div class="activeTab" onclick="openPage('home',this)">🏠</div>
+<div onclick="openPage('rotina',this)">📋</div>
+<div onclick="openPage('agua',this)">💧</div>
+<div onclick="openPage('config',this)">⚙️</div>
 
 </div>
 
@@ -238,7 +267,7 @@ const rotina=[
 
 ];
 
-function openPage(id){
+function openPage(id,el){
 
 document.querySelectorAll(".page").forEach(p=>{
 p.classList.remove("active");
@@ -246,10 +275,15 @@ p.classList.remove("active");
 
 document.getElementById(id).classList.add("active");
 
+document.querySelectorAll(".nav div").forEach(b=>{
+b.classList.remove("activeTab");
+});
+
+el.classList.add("activeTab");
+
 }
 
 const today=new Date().toDateString();
-
 let savedDate=localStorage.getItem("date");
 
 if(savedDate!==today){
@@ -272,10 +306,8 @@ card.className="card";
 card.id="task"+i;
 
 card.innerHTML=`
-<b>${r.time}</b>
-<br>
-${r.task}
-<br>
+<b>${r.time}</b><br>
+${r.task}<br>
 <button onclick="done(${i})">Concluir</button>
 `;
 
@@ -312,7 +344,6 @@ function updateProgress(){
 let percent=Math.floor((tasksDone.length/rotina.length)*100);
 
 document.getElementById("progress").style.width=percent+"%";
-
 document.getElementById("progressText").innerText=percent+"%";
 
 }
