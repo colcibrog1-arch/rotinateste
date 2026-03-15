@@ -312,347 +312,163 @@ const today=new Date().toDateString();
 let savedDate=localStorage.getItem("date");
 
 if(savedDate!==today){
-
-localStorage.setItem("date",today);
-localStorage.setItem("tasksDone","[]");
-
+  localStorage.setItem("date",today);
+  localStorage.setItem("tasksDone","[]");
+  localStorage.setItem("notificadas","[]");
 }
-  
+
+// tarefas do dia
 function tarefasHoje(){
-let hoje=new Date().getDay();
-return rotina.filter(t=>!t.days || t.days.includes(hoje));
+  let hoje=new Date().getDay();
+  return rotina.filter(t=>!t.days || t.days.includes(hoje));
 }
 
+// renderização de páginas
 function openPage(id,el){
-
-document.querySelectorAll(".page").forEach(p=>{
-p.classList.remove("active");
-});
-
-document.getElementById(id).classList.add("active");
-
-document.querySelectorAll(".nav div").forEach(b=>{
-b.classList.remove("activeTab");
-});
-
-el.classList.add("activeTab");
-
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".nav div").forEach(b=>b.classList.remove("activeTab"));
+  el.classList.add("activeTab");
 }
 
 function openConfigPage(id){
-
-document.querySelectorAll(".page").forEach(p=>{
-p.classList.remove("active");
-});
-
-document.getElementById(id).classList.add("active");
-
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
+// armazenamento das tarefas concluídas
+let tasksDone = JSON.parse(localStorage.getItem("tasksDone")||"[]");
+
+// renderizar tarefas com persistência
 function renderTasks(){
+  const tasksDiv=document.getElementById("tasks");
+  tasksDiv.innerHTML="";
+  tarefasHoje().forEach((r,i)=>{
+    let idUnico = r.time + "|" + r.task;
+    let doneClass = tasksDone.includes(idUnico) ? "done" : "";
 
-const tasksDiv=document.getElementById("tasks");
-tasksDiv.innerHTML="";
+    let card=document.createElement("div");
+    card.className="card " + doneClass;
+    card.id="task"+i;
 
-tarefasHoje().forEach((r,i)=>{
+    card.innerHTML=`
+      <b>${r.time}</b><br>
+      ${r.task}<br>
+      <button onclick="done(${i})">Concluir</button>
+    `;
 
-let card=document.createElement("div");
-card.className="card";
-card.id="task"+i;
-
-card.innerHTML=`
-<b>${r.time}</b><br>
-${r.task}<br>
-<button onclick="done(${i})">Concluir</button>
-`;
-
-tasksDiv.appendChild(card);
-
-});
-
+    tasksDiv.appendChild(card);
+  });
 }
 
-renderTasks();
-
-function renderEditar(){
-
-let lista=document.getElementById("editarLista");
-lista.innerHTML="";
-
-rotina.forEach((r,i)=>{
-
-let dias=r.days||[];
-
-lista.innerHTML+=`
-
-<div class="card">
-
-Horário
-<input type="time" value="${r.time}" id="editTime${i}">
-
-Nome
-<input type="text" value="${r.task}" id="editName${i}">
-
-<div class="days">
-<label><input type="checkbox" class="editDay${i}" value="1" ${dias.includes(1)?"checked":""}>Seg</label>
-<label><input type="checkbox" class="editDay${i}" value="2" ${dias.includes(2)?"checked":""}>Ter</label>
-<label><input type="checkbox" class="editDay${i}" value="3" ${dias.includes(3)?"checked":""}>Qua</label>
-<label><input type="checkbox" class="editDay${i}" value="4" ${dias.includes(4)?"checked":""}>Qui</label>
-<label><input type="checkbox" class="editDay${i}" value="5" ${dias.includes(5)?"checked":""}>Sex</label>
-<label><input type="checkbox" class="editDay${i}" value="6" ${dias.includes(6)?"checked":""}>Sab</label>
-<label><input type="checkbox" class="editDay${i}" value="0" ${dias.includes(0)?"checked":""}>Dom</label>
-</div>
-
-<button onclick="salvarEdicao(${i})">Salvar</button>
-
-</div>
-
-`;
-
-});
-
-}
-
-function salvarEdicao(i){
-
-let time=document.getElementById("editTime"+i).value;
-let nome=document.getElementById("editName"+i).value;
-
-let days=[];
-document.querySelectorAll(".editDay"+i+":checked").forEach(d=>{
-days.push(parseInt(d.value));
-});
-
-rotina[i]={time:time,task:nome,days:days};
-
-localStorage.setItem("rotina",JSON.stringify(rotina));
-
-renderTasks();
-
-alert("Tarefa atualizada");
-
-}
-
-function criarTarefa(){
-
-let time=document.getElementById("novoHorario").value;
-let nome=document.getElementById("novoNome").value;
-
-if(!time || !nome){
-alert("Preencha tudo");
-return;
-}
-
-let days=[];
-document.querySelectorAll("#criarTarefa .days input:checked").forEach(d=>{
-days.push(parseInt(d.value));
-});
-
-rotina.push({time:time,task:nome,days:days});
-
-localStorage.setItem("rotina",JSON.stringify(rotina));
-
-renderTasks();
-renderEditar();
-renderExcluir();
-
-alert("Tarefa criada");
-
-}
-
-function renderExcluir(){
-
-let lista=document.getElementById("excluirLista");
-lista.innerHTML="";
-
-rotina.forEach((r,i)=>{
-
-lista.innerHTML+=`
-
-<div class="card">
-
-${r.time} - ${r.task}
-
-<br><br>
-
-<button onclick="excluirTarefa(${i})">Excluir</button>
-
-</div>
-
-`;
-
-});
-
-}
-
-function excluirTarefa(i){
-
-rotina.splice(i,1);
-
-localStorage.setItem("rotina",JSON.stringify(rotina));
-
-renderTasks();
-renderExcluir();
-renderEditar();
-
-alert("Tarefa removida");
-
-}
-
-renderEditar();
-renderExcluir();
-
-/* tarefas */
-
-let tasksDone=JSON.parse(localStorage.getItem("tasksDone")||"[]");
-
+// marcar como concluída
 function done(i){
+  const tarefa = tarefasHoje()[i];
+  const id = tarefa.time + "|" + tarefa.task;
 
-let card=document.getElementById("task"+i);
+  let card = document.getElementById("task"+i);
+  card.classList.toggle("done");
 
-card.classList.toggle("done");
+  if(tasksDone.includes(id)){
+    tasksDone = tasksDone.filter(t => t!==id);
+  } else {
+    tasksDone.push(id);
+  }
 
-if(tasksDone.includes(i)){
-tasksDone=tasksDone.filter(t=>t!==i);
-}else{
-tasksDone.push(i);
+  localStorage.setItem("tasksDone", JSON.stringify(tasksDone));
+
+  updateProgress();
+  updateNext();
 }
 
-localStorage.setItem("tasksDone",JSON.stringify(tasksDone));
-
-updateProgress();
-updateNext();
-
-}
-
+// progresso
 function updateProgress(){
-
-let total = tarefasHoje().length;
-
-if(total === 0){
-document.getElementById("progress").style.width="0%";
-document.getElementById("progressText").innerText="0%";
-return;
+  let total = tarefasHoje().length;
+  if(total === 0){
+    document.getElementById("progress").style.width="0%";
+    document.getElementById("progressText").innerText="0%";
+    return;
+  }
+  let countDone = tasksDone.filter(tid=>{
+    return tarefasHoje().some(t=> (t.time+"|"+t.task)===tid );
+  }).length;
+  let percent = Math.floor((countDone / total) * 100);
+  if(percent > 100) percent = 100;
+  document.getElementById("progress").style.width = percent + "%";
+  document.getElementById("progressText").innerText = percent + "%";
 }
 
-let percent = Math.floor((tasksDone.length / total) * 100);
-
-if(percent > 100) percent = 100;
-
-document.getElementById("progress").style.width = percent + "%";
-document.getElementById("progressText").innerText = percent + "%";
-
-}
-
+// próxima tarefa
 function updateNext(){
-
-let next=document.getElementById("nextTask");
-
-let lista=tarefasHoje();
-
-if(lista.length===0){
-next.innerText="Nenhuma tarefa para hoje";
-return;
-}
-
-if(tasksDone.length>=lista.length){
-next.innerText="✅ Todas as tarefas concluídas";
-return;
-}
-
-let now=new Date();
-let current=now.getHours()*60+now.getMinutes();
-
-for(let r of lista){
-
-let parts=r.time.split(":");
-let t=parseInt(parts[0])*60+parseInt(parts[1]);
-
-if(t>current){
-next.innerText=r.time+" - "+r.task;
-return;
-}
-
-}
-
-next.innerText="Sem tarefas restantes hoje";
-
+  let next=document.getElementById("nextTask");
+  let lista=tarefasHoje();
+  if(lista.length===0){
+    next.innerText="Nenhuma tarefa para hoje";
+    return;
+  }
+  let now=new Date();
+  let current=now.getHours()*60+now.getMinutes();
+  for(let r of lista){
+    let parts=r.time.split(":");
+    let t=parseInt(parts[0])*60+parseInt(parts[1]);
+    let id = r.time + "|" + r.task;
+    if(t>current && !tasksDone.includes(id)){
+      next.innerText=r.time+" - "+r.task;
+      return;
+    }
+  }
+  if(tasksDone.length>=lista.length){
+    next.innerText="✅ Todas as tarefas concluídas";
+  } else {
+    next.innerText="Sem tarefas restantes hoje";
+  }
 }
 
 /* água */
-
 let water=parseInt(localStorage.getItem("water")||0);
-
-function updateWater(){
-document.getElementById("waterCount").innerText=water+" / 8";
-}
-
-function addWater(){
-if(water<8){
-water++;
-localStorage.setItem("water",water);
-updateWater();
-}
-}
-
-function resetWater(){
-water=0;
-localStorage.setItem("water",water);
-updateWater();
-}
-
+function updateWater(){ document.getElementById("waterCount").innerText=water+" / 8"; }
+function addWater(){ if(water<8){ water++; localStorage.setItem("water",water); updateWater(); } }
+function resetWater(){ water=0; localStorage.setItem("water",water); updateWater(); }
 updateWater();
 
 /* notificações */
-
 function ativarAvisos(){
-
-if(Notification.permission!=="granted"){
-Notification.requestPermission();
-}else{
-alert("Notificações já ativadas");
+  if(Notification.permission!=="granted"){
+    Notification.requestPermission().then(p=>{
+      if(p==="granted") alert("Notificações ativadas!");
+    });
+  }else{
+    alert("Notificações já ativadas");
+  }
 }
 
+function verificarNotificacoes(){
+  if(Notification.permission!=="granted") return;
+  const agora=new Date();
+  const horaAtual = agora.getHours().toString().padStart(2,"0");
+  const minutoAtual = agora.getMinutes().toString().padStart(2,"0");
+  const horarioAtual = horaAtual + ":" + minutoAtual;
+
+  let notificadas = JSON.parse(localStorage.getItem("notificadas")||"[]");
+
+  tarefasHoje().forEach((t,i)=>{
+    let id = t.time + "|" + t.task;
+    if(t.time <= horarioAtual && !notificadas.includes(id)){
+      new Notification("Rotina do Shape 💪",{ body: t.task, icon:"icon-192.png" });
+      notificadas.push(id);
+    }
+  });
+
+  localStorage.setItem("notificadas", JSON.stringify(notificadas));
 }
 
-/* INICIALIZAÇÃO */
-
+/* render inicial */
 renderTasks();
-renderEditar();
-renderExcluir();
-
 updateProgress();
 updateNext();
 
-updateWater();
+setInterval(verificarNotificacoes,10000); // checa a cada 10s
 
-setInterval(verificarNotificacoes,30000);
-
-function verificarNotificacoes(){
-
-if(Notification.permission!=="granted") return;
-
-let agora=new Date();
-let horaAtual=agora.getHours().toString().padStart(2,"0");
-let minutoAtual=agora.getMinutes().toString().padStart(2,"0");
-
-let horarioAtual=horaAtual+":"+minutoAtual;
-
-tarefasHoje().forEach(t=>{
-
-if(t.time===horarioAtual){
-
-new Notification("Rotina do Shape 💪",{
-body:t.task,
-icon:"icon-192.png"
-});
-
-}
-
-});
-
-}
-  
 </script>
 
 </body>
