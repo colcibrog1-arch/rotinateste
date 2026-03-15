@@ -3,10 +3,8 @@
 <html lang="pt-BR">
 <head>
 
-  <link rel="manifest" href="manifest.json">
-
+<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-
 <meta name="theme-color" content="#000000">
 
 <meta charset="UTF-8">
@@ -113,11 +111,6 @@ width:60px;
 height:60px;
 border-radius:14px;
 cursor:pointer;
-transition:0.2s;
-}
-
-.nav div:hover{
-background:#1a1a1a;
 }
 
 .activeTab{
@@ -209,10 +202,93 @@ z-index:999;
 </div>
 
 <div class="card">
-✏️ Editar rotina
-<div id="editor"></div>
-<button onclick="addTask()">➕ Nova tarefa</button>
-<button onclick="saveRoutine()">💾 Salvar rotina</button>
+⚙️ Rotina
+<br><br>
+<button onclick="openConfigPage('menuRotina')">Gerenciar rotina</button>
+</div>
+
+</div>
+
+<!-- MENU ROTINA -->
+
+<div class="page" id="menuRotina">
+
+<div class="card">
+
+<h3>Gerenciar rotina</h3>
+
+<button onclick="openConfigPage('editarTarefa')">✏️ Editar tarefa</button>
+
+<br><br>
+
+<button onclick="openConfigPage('criarTarefa')">➕ Criar tarefa</button>
+
+<br><br>
+
+<button onclick="openConfigPage('excluirTarefa')">🗑 Excluir tarefa</button>
+
+<br><br>
+
+<button onclick="openPage('config',document.querySelector('.nav div:nth-child(4)'))">
+⬅ Voltar
+</button>
+
+</div>
+
+</div>
+
+<!-- EDITAR -->
+
+<div class="page" id="editarTarefa">
+
+<div class="card">
+
+<h3>Editar tarefa</h3>
+
+<div id="editarLista"></div>
+
+<button onclick="openConfigPage('menuRotina')">⬅ Voltar</button>
+
+</div>
+
+</div>
+
+<!-- CRIAR -->
+
+<div class="page" id="criarTarefa">
+
+<div class="card">
+
+<h3>Criar tarefa</h3>
+
+Horário
+<input type="time" id="novoHorario">
+
+Nome
+<input type="text" id="novoNome">
+
+<button onclick="criarTarefa()">Criar</button>
+
+<br><br>
+
+<button onclick="openConfigPage('menuRotina')">⬅ Voltar</button>
+
+</div>
+
+</div>
+
+<!-- EXCLUIR -->
+
+<div class="page" id="excluirTarefa">
+
+<div class="card">
+
+<h3>Excluir tarefa</h3>
+
+<div id="excluirLista"></div>
+
+<button onclick="openConfigPage('menuRotina')">⬅ Voltar</button>
+
 </div>
 
 </div>
@@ -257,19 +333,17 @@ el.classList.add("activeTab");
 
 }
 
-const today=new Date().toDateString();
-let savedDate=localStorage.getItem("date");
+function openConfigPage(id){
 
-if(savedDate!==today){
+document.querySelectorAll(".page").forEach(p=>{
+p.classList.remove("active");
+});
 
-localStorage.setItem("date",today);
-localStorage.setItem("tasksDone","[]");
-localStorage.setItem("water","0");
-localStorage.setItem("streakCounted","false");
+document.getElementById(id).classList.add("active");
 
 }
 
-let tasksDone=JSON.parse(localStorage.getItem("tasksDone")||"[]");
+/* ---------- ROTINA ---------- */
 
 function renderTasks(){
 
@@ -290,166 +364,34 @@ ${r.task}<br>
 
 tasksDiv.appendChild(card);
 
-if(tasksDone.includes(i)){
-card.classList.add("done");
-}
-
 });
 
 }
 
 renderTasks();
 
-function done(i){
+/* ---------- EDITAR ---------- */
 
-let card=document.getElementById("task"+i);
+function renderEditar(){
 
-card.classList.toggle("done");
-
-if(tasksDone.includes(i)){
-tasksDone=tasksDone.filter(t=>t!==i);
-}else{
-tasksDone.push(i);
-}
-
-localStorage.setItem("tasksDone",JSON.stringify(tasksDone));
-
-updateProgress();
-updateNext();
-checkPerfectDay();
-
-}
-
-function updateProgress(){
-
-let percent=Math.floor((tasksDone.length/rotina.length)*100);
-
-document.getElementById("progress").style.width=percent+"%";
-document.getElementById("progressText").innerText=percent+"%";
-
-}
-
-updateProgress();
-
-function updateNext(){
-
-if(tasksDone.length===rotina.length){
-
-document.getElementById("nextTask").innerText=
-"✅ Todas as tarefas do dia foram concluídas";
-
-return;
-
-}
-
-let now=new Date();
-let current=now.getHours()*60+now.getMinutes();
-
-for(let r of rotina){
-
-let parts=r.time.split(":");
-let t=parseInt(parts[0])*60+parseInt(parts[1]);
-
-if(t>current){
-
-document.getElementById("nextTask").innerText=
-r.time+" - "+r.task;
-
-return;
-
-}
-
-}
-
-}
-
-setInterval(updateNext,60000);
-updateNext();
-
-let streak=parseInt(localStorage.getItem("streak")||0);
-document.getElementById("streak").innerText=streak;
-
-function checkPerfectDay(){
-
-if(tasksDone.length===rotina.length){
-
-let counted=localStorage.getItem("streakCounted");
-
-if(counted!=="true"){
-
-streak++;
-localStorage.setItem("streak",streak);
-localStorage.setItem("streakCounted","true");
-
-document.getElementById("streak").innerText=streak;
-
-showPerfect();
-
-}
-
-}
-
-}
-
-function showPerfect(){
-
-let el=document.getElementById("perfectDay");
-
-el.style.display="flex";
-
-setTimeout(()=>{
-el.style.display="none";
-},3000);
-
-}
-
-let water=parseInt(localStorage.getItem("water")||0);
-
-function updateWater(){
-document.getElementById("waterCount").innerText=water+" / 8";
-}
-
-function addWater(){
-
-if(water<8){
-water++;
-localStorage.setItem("water",water);
-updateWater();
-}
-
-}
-
-function resetWater(){
-water=0;
-localStorage.setItem("water",water);
-updateWater();
-}
-
-updateWater();
-
-function ativarAvisos(){
-
-if(Notification.permission!=="granted"){
-Notification.requestPermission();
-}else{
-alert("Notificações já ativadas");
-}
-
-}
-
-function renderEditor(){
-
-const editor=document.getElementById("editor");
-editor.innerHTML="";
+let lista=document.getElementById("editarLista");
+lista.innerHTML="";
 
 rotina.forEach((r,i)=>{
 
-editor.innerHTML+=`
+lista.innerHTML+=`
 
-<input type="time" value="${r.time}" id="time${i}">
-<input type="text" value="${r.task}" id="task${i}">
-<button onclick="removeTask(${i})">🗑 Remover</button>
-<hr>
+<div class="card">
+
+Horário
+<input type="time" value="${r.time}" id="editTime${i}">
+
+Nome
+<input type="text" value="${r.task}" id="editName${i}">
+
+<button onclick="salvarEdicao(${i})">Salvar</button>
+
+</div>
 
 `;
 
@@ -457,47 +399,85 @@ editor.innerHTML+=`
 
 }
 
-renderEditor();
+function salvarEdicao(i){
 
-function addTask(){
+let time=document.getElementById("editTime"+i).value;
+let nome=document.getElementById("editName"+i).value;
 
-rotina.push({time:"12:00",task:"Nova tarefa"});
-renderEditor();
-
-}
-
-function removeTask(i){
-
-rotina.splice(i,1);
-renderEditor();
-
-}
-
-function saveRoutine(){
-
-let newRoutine=[];
-
-for(let i=0;i<rotina.length;i++){
-
-let time=document.getElementById("time"+i).value;
-let task=document.getElementById("task"+i).value;
-
-newRoutine.push({time,task});
-
-}
-
-rotina=newRoutine;
+rotina[i]={time:time,task:nome};
 
 localStorage.setItem("rotina",JSON.stringify(rotina));
 
-tasksDone=[];
-localStorage.setItem("tasksDone","[]");
+renderTasks();
+
+alert("Tarefa atualizada");
+
+}
+
+/* ---------- CRIAR ---------- */
+
+function criarTarefa(){
+
+let time=document.getElementById("novoHorario").value;
+let nome=document.getElementById("novoNome").value;
+
+if(!time || !nome){
+alert("Preencha tudo");
+return;
+}
+
+rotina.push({time:time,task:nome});
+
+localStorage.setItem("rotina",JSON.stringify(rotina));
 
 renderTasks();
 
-alert("Rotina salva!");
+alert("Tarefa criada");
 
 }
+
+/* ---------- EXCLUIR ---------- */
+
+function renderExcluir(){
+
+let lista=document.getElementById("excluirLista");
+lista.innerHTML="";
+
+rotina.forEach((r,i)=>{
+
+lista.innerHTML+=`
+
+<div class="card">
+
+${r.time} - ${r.task}
+
+<br><br>
+
+<button onclick="excluirTarefa(${i})">Excluir</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+function excluirTarefa(i){
+
+rotina.splice(i,1);
+
+localStorage.setItem("rotina",JSON.stringify(rotina));
+
+renderTasks();
+renderExcluir();
+
+alert("Tarefa removida");
+
+}
+
+renderEditar();
+renderExcluir();
 
 </script>
 
