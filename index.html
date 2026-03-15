@@ -579,11 +579,6 @@ next.innerText="Sem tarefas restantes hoje";
 
 }
 
-renderTasks();
-updateProgress();
-updateNext();
-updateWater();
-
 /* água */
 
 let water=parseInt(localStorage.getItem("water")||0);
@@ -619,6 +614,17 @@ alert("Notificações já ativadas");
 }
 
 }
+
+/* INICIALIZAÇÃO */
+
+renderTasks();
+renderEditar();
+renderExcluir();
+
+updateProgress();
+updateNext();
+
+updateWater();
 
 </script>
 
