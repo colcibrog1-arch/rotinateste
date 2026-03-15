@@ -626,6 +626,33 @@ updateNext();
 
 updateWater();
 
+setInterval(verificarNotificacoes,30000);
+
+function verificarNotificacoes(){
+
+if(Notification.permission!=="granted") return;
+
+let agora=new Date();
+let horaAtual=agora.getHours().toString().padStart(2,"0");
+let minutoAtual=agora.getMinutes().toString().padStart(2,"0");
+
+let horarioAtual=horaAtual+":"+minutoAtual;
+
+tarefasHoje().forEach(t=>{
+
+if(t.time===horarioAtual){
+
+new Notification("Rotina do Shape 💪",{
+body:t.task,
+icon:"icon-192.png"
+});
+
+}
+
+});
+
+}
+  
 </script>
 
 </body>
