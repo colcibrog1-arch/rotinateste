@@ -1,325 +1,150 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#000000">
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Rotina do Shape</title>
 
 <style>
-
-body{
-margin:0;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-background:#000;
-color:#fff;
-}
-
-header{
-text-align:center;
-padding:18px;
-font-size:24px;
-font-weight:700;
-border-bottom:1px solid #222;
-}
-
-.page{
-display:none;
-padding:20px;
-max-width:500px;
-margin:auto;
-padding-bottom:120px;
-}
-
-.active{
-display:block;
-}
-
-.card{
-background:#0f0f0f;
-border:1px solid #222;
-border-radius:12px;
-padding:16px;
-margin-bottom:14px;
-}
-
-button{
-background:#fff;
-border:none;
-padding:8px 14px;
-border-radius:8px;
-font-weight:600;
-margin-top:10px;
-cursor:pointer;
-}
-
-input{
-width:100%;
-padding:8px;
-margin-top:6px;
-margin-bottom:10px;
-border-radius:6px;
-border:none;
-}
-
-.days label{
-margin-right:8px;
-font-size:13px;
-}
-
-.done{
-opacity:.4;
-text-decoration:line-through;
-}
-
-.progressBar{
-width:100%;
-height:14px;
-background:#222;
-border-radius:10px;
-overflow:hidden;
-margin-top:10px;
-}
-
-.progress{
-height:100%;
-background:#fff;
-width:0%;
-}
-
-.nav{
-position:fixed;
-bottom:0;
-left:0;
-width:100%;
-background:#0a0a0a;
-border-top:1px solid #222;
-display:flex;
-justify-content:center;
-align-items:center;
-gap:30px;
-padding:16px 0 calc(22px + env(safe-area-inset-bottom));
-font-size:28px;
-}
-
-.nav div{
-display:flex;
-align-items:center;
-justify-content:center;
-width:60px;
-height:60px;
-border-radius:14px;
-cursor:pointer;
-}
-
-.activeTab{
-background:#fff;
-color:#000;
-}
-
-.water{
-font-size:28px;
-margin:10px 0;
-}
-
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;background:#000;color:#fff;}
+header{text-align:center;padding:18px;font-size:24px;font-weight:700;border-bottom:1px solid #222;}
+.page{display:none;padding:20px;max-width:500px;margin:auto;padding-bottom:120px;}
+.active{display:block;}
+.card{background:#0f0f0f;border:1px solid #222;border-radius:12px;padding:16px;margin-bottom:14px;}
+button{background:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:600;margin-top:10px;cursor:pointer;}
+input{width:100%;padding:8px;margin-top:6px;margin-bottom:10px;border-radius:6px;border:none;}
+.days label{margin-right:8px;font-size:13px;}
+.done{opacity:.4;text-decoration:line-through;}
+.progressBar{width:100%;height:14px;background:#222;border-radius:10px;overflow:hidden;margin-top:10px;}
+.progress{height:100%;background:#fff;width:0%;}
+.nav{position:fixed;bottom:0;left:0;width:100%;background:#0a0a0a;border-top:1px solid #222;display:flex;justify-content:center;align-items:center;gap:30px;padding:16px 0 calc(22px + env(safe-area-inset-bottom));font-size:28px;}
+.nav div{display:flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:14px;cursor:pointer;}
+.activeTab{background:#fff;color:#000;}
+.water{font-size:28px;margin:10px 0;}
 </style>
 </head>
 
 <body>
-
 <header>💪 Rotina do Shape</header>
 
 <!-- HOME -->
-
 <div class="page active" id="home">
-
-<div class="card">
-🔥 Streak: <span id="streak">0</span> dias
-</div>
-
-<div class="card">
-📊 Progresso hoje
-<div class="progressBar">
-<div class="progress" id="progress"></div>
-</div>
-<div id="progressText">0%</div>
-</div>
-
-<div class="card">
-⏰ Próxima tarefa
-<div id="nextTask">Carregando...</div>
-</div>
-
+  <div class="card">🔥 Streak: <span id="streak">0</span> dias</div>
+  <div class="card">
+    📊 Progresso hoje
+    <div class="progressBar"><div class="progress" id="progress"></div></div>
+    <div id="progressText">0%</div>
+  </div>
+  <div class="card">⏰ Próxima tarefa<div id="nextTask">Carregando...</div></div>
 </div>
 
 <!-- ROTINA -->
-
-<div class="page" id="rotina">
-<div id="tasks"></div>
-</div>
+<div class="page" id="rotina"><div id="tasks"></div></div>
 
 <!-- ÁGUA -->
-
 <div class="page" id="agua">
-<div class="card">
-💧 Água hoje
-<div class="water" id="waterCount">0 / 8</div>
-<button onclick="addWater()">+1 Garrafa</button>
-<button onclick="resetWater()">Reset</button>
-</div>
+  <div class="card">
+    💧 Água hoje
+    <div class="water" id="waterCount">0 / 8</div>
+    <button onclick="addWater()">+1 Garrafa</button>
+    <button onclick="resetWater()">Reset</button>
+  </div>
 </div>
 
 <!-- CONFIG -->
-
 <div class="page" id="config">
-
-<div class="card">
-🔔 Notificações
-<br>
-<button onclick="ativarAvisos()">Ativar notificações</button>
-</div>
-
-<div class="card">
-⚙️ Rotina
-<br><br>
-<button onclick="openConfigPage('menuRotina')">Gerenciar rotina</button>
-</div>
-
+  <div class="card">
+    🔔 Notificações<br>
+    <button onclick="ativarAvisos()">Ativar notificações</button>
+  </div>
+  <div class="card">
+    ⚙️ Rotina<br><br>
+    <button onclick="openConfigPage('menuRotina')">Gerenciar rotina</button>
+  </div>
 </div>
 
 <!-- MENU ROTINA -->
-
 <div class="page" id="menuRotina">
-
-<div class="card">
-
-<h3>Gerenciar rotina</h3>
-
-<button onclick="openConfigPage('editarTarefa')">✏️ Editar tarefa</button>
-
-<br><br>
-
-<button onclick="openConfigPage('criarTarefa')">➕ Criar tarefa</button>
-
-<br><br>
-
-<button onclick="openConfigPage('excluirTarefa')">🗑 Excluir tarefa</button>
-
-<br><br>
-
-<button onclick="openPage('config',document.querySelector('.nav div:nth-child(4)'))">
-⬅ Voltar
-</button>
-
-</div>
-
+  <div class="card">
+    <h3>Gerenciar rotina</h3>
+    <button onclick="openConfigPage('editarTarefa')">✏️ Editar tarefa</button><br><br>
+    <button onclick="openConfigPage('criarTarefa')">➕ Criar tarefa</button><br><br>
+    <button onclick="openConfigPage('excluirTarefa')">🗑 Excluir tarefa</button><br><br>
+    <button onclick="openPage('config',document.querySelector('.nav div:nth-child(4)'))">⬅ Voltar</button>
+  </div>
 </div>
 
 <!-- EDITAR -->
-
 <div class="page" id="editarTarefa">
-
-<div class="card">
-
-<h3>Editar tarefa</h3>
-
-<div id="editarLista"></div>
-
-<button onclick="openConfigPage('menuRotina')">⬅ Voltar</button>
-
-</div>
-
+  <div class="card">
+    <h3>Editar tarefa</h3>
+    <div id="editarLista"></div>
+    <button onclick="openConfigPage('menuRotina')">⬅ Voltar</button>
+  </div>
 </div>
 
 <!-- CRIAR -->
-
 <div class="page" id="criarTarefa">
-
-<div class="card">
-
-<h3>Criar tarefa</h3>
-
-Horário
-<input type="time" id="novoHorario">
-
-Nome
-<input type="text" id="novoNome">
-
-<div class="days">
-<label><input type="checkbox" value="1">Seg</label>
-<label><input type="checkbox" value="2">Ter</label>
-<label><input type="checkbox" value="3">Qua</label>
-<label><input type="checkbox" value="4">Qui</label>
-<label><input type="checkbox" value="5">Sex</label>
-<label><input type="checkbox" value="6">Sab</label>
-<label><input type="checkbox" value="0">Dom</label>
-</div>
-
-<button onclick="criarTarefa()">Criar</button>
-
-<br><br>
-
-<button onclick="openConfigPage('menuRotina')">⬅ Voltar</button>
-
-</div>
-
+  <div class="card">
+    <h3>Criar tarefa</h3>
+    Horário<input type="time" id="novoHorario">
+    Nome<input type="text" id="novoNome">
+    <div class="days">
+      <label><input type="checkbox" value="1">Seg</label>
+      <label><input type="checkbox" value="2">Ter</label>
+      <label><input type="checkbox" value="3">Qua</label>
+      <label><input type="checkbox" value="4">Qui</label>
+      <label><input type="checkbox" value="5">Sex</label>
+      <label><input type="checkbox" value="6">Sab</label>
+      <label><input type="checkbox" value="0">Dom</label>
+    </div>
+    <button onclick="criarTarefa()">Criar</button><br><br>
+    <button onclick="openConfigPage('menuRotina')">⬅ Voltar</button>
+  </div>
 </div>
 
 <!-- EXCLUIR -->
-
 <div class="page" id="excluirTarefa">
-
-<div class="card">
-
-<h3>Excluir tarefa</h3>
-
-<div id="excluirLista"></div>
-
-<button onclick="openConfigPage('menuRotina')">⬅ Voltar</button>
-
-</div>
-
+  <div class="card">
+    <h3>Excluir tarefa</h3>
+    <div id="excluirLista"></div>
+    <button onclick="openConfigPage('menuRotina')">⬅ Voltar</button>
+  </div>
 </div>
 
 <!-- NAV -->
-
 <div class="nav">
-
-<div class="activeTab" onclick="openPage('home',this)">🏠</div>
-<div onclick="openPage('rotina',this)">📋</div>
-<div onclick="openPage('agua',this)">💧</div>
-<div onclick="openPage('config',this)">⚙️</div>
-
+  <div class="activeTab" onclick="openPage('home',this)">🏠</div>
+  <div onclick="openPage('rotina',this)">📋</div>
+  <div onclick="openPage('agua',this)">💧</div>
+  <div onclick="openPage('config',this)">⚙️</div>
 </div>
 
 <script>
-
+/* ROTINA E STORAGE */
 let rotina = JSON.parse(localStorage.getItem("rotina")) || [
-{time:"05:10",task:"Aveia + Leite + Creatina",days:[1,2,3,4,5],id:"05:10|Aveia + Leite + Creatina"},
-{time:"07:30",task:"Whey + Creatina",days:[1,2,3,4,5],id:"07:30|Whey + Creatina"},
-{time:"10:00",task:"Fruta",days:[1,2,3,4,5],id:"10:00|Fruta"},
-{time:"12:00",task:"Almoço + Creatina",days:[1,2,3,4,5],id:"12:00|Almoço + Creatina"},
-{time:"19:00",task:"Hipercalórico",days:[1,2,3,4,5],id:"19:00|Hipercalórico"},
-{time:"23:00",task:"Jantar + Creatina + Vitaminas",days:[1,2,3,4,5],id:"23:00|Jantar + Creatina + Vitaminas"}
+  {time:"05:10",task:"Aveia + Leite + Creatina",days:[1,2,3,4,5],id:"05:10|Aveia + Leite + Creatina"},
+  {time:"07:30",task:"Whey + Creatina",days:[1,2,3,4,5],id:"07:30|Whey + Creatina"},
+  {time:"10:00",task:"Fruta",days:[1,2,3,4,5],id:"10:00|Fruta"},
+  {time:"12:00",task:"Almoço + Creatina",days:[1,2,3,4,5],id:"12:00|Almoço + Creatina"},
+  {time:"19:00",task:"Hipercalórico",days:[1,2,3,4,5],id:"19:00|Hipercalórico"},
+  {time:"23:00",task:"Jantar + Creatina + Vitaminas",days:[1,2,3,4,5],id:"23:00|Jantar + Creatina + Vitaminas"}
 ];
 
-const today=new Date().toDateString();
-let savedDate=localStorage.getItem("date");
-
-if(savedDate!==today){
-  localStorage.setItem("date",today);
-  localStorage.setItem("tasksDone","{}"); // historico por dia
-  localStorage.setItem("notificadas","[]"); // reset notificações
+const today = new Date().toDateString();
+let savedDate = localStorage.getItem("date");
+if(savedDate !== today){
+  localStorage.setItem("date", today);
+  localStorage.setItem("tasksDone", "{}"); // reset diário
+  localStorage.setItem("notificadas", "[]");
 }
 
 function tarefasHoje(){
-  let hoje=new Date().getDay();
-  return rotina.filter(t=>!t.days || t.days.includes(hoje));
+  let hoje = new Date().getDay();
+  return rotina.filter(t => !t.days || t.days.includes(hoje));
 }
 
 function openPage(id,el){
@@ -334,6 +159,7 @@ function openConfigPage(id){
   document.getElementById(id).classList.add("active");
 }
 
+/* RENDER TAREFAS */
 function renderTasks(){
   const tasksDiv=document.getElementById("tasks");
   tasksDiv.innerHTML="";
@@ -352,41 +178,34 @@ function renderTasks(){
   });
 }
 
-renderTasks();
-
+/* CRIAR / EDITAR / EXCLUIR */
 function renderEditar(){
-  let lista=document.getElementById("editarLista");
-  lista.innerHTML="";
+  let lista=document.getElementById("editarLista"); lista.innerHTML="";
   rotina.forEach((r,i)=>{
     let dias=r.days||[];
-    lista.innerHTML+=`
-    <div class="card">
-    Horário
-    <input type="time" value="${r.time}" id="editTime${i}">
-    Nome
-    <input type="text" value="${r.task}" id="editName${i}">
-    <div class="days">
-    <label><input type="checkbox" class="editDay${i}" value="1" ${dias.includes(1)?"checked":""}>Seg</label>
-    <label><input type="checkbox" class="editDay${i}" value="2" ${dias.includes(2)?"checked":""}>Ter</label>
-    <label><input type="checkbox" class="editDay${i}" value="3" ${dias.includes(3)?"checked":""}>Qua</label>
-    <label><input type="checkbox" class="editDay${i}" value="4" ${dias.includes(4)?"checked":""}>Qui</label>
-    <label><input type="checkbox" class="editDay${i}" value="5" ${dias.includes(5)?"checked":""}>Sex</label>
-    <label><input type="checkbox" class="editDay${i}" value="6" ${dias.includes(6)?"checked":""}>Sab</label>
-    <label><input type="checkbox" class="editDay${i}" value="0" ${dias.includes(0)?"checked":""}>Dom</label>
-    </div>
-    <button onclick="salvarEdicao(${i})">Salvar</button>
-    </div>
-    `;
+    lista.innerHTML+=`<div class="card">
+      Horário<input type="time" value="${r.time}" id="editTime${i}">
+      Nome<input type="text" value="${r.task}" id="editName${i}">
+      <div class="days">
+        <label><input type="checkbox" class="editDay${i}" value="1" ${dias.includes(1)?"checked":""}>Seg</label>
+        <label><input type="checkbox" class="editDay${i}" value="2" ${dias.includes(2)?"checked":""}>Ter</label>
+        <label><input type="checkbox" class="editDay${i}" value="3" ${dias.includes(3)?"checked":""}>Qua</label>
+        <label><input type="checkbox" class="editDay${i}" value="4" ${dias.includes(4)?"checked":""}>Qui</label>
+        <label><input type="checkbox" class="editDay${i}" value="5" ${dias.includes(5)?"checked":""}>Sex</label>
+        <label><input type="checkbox" class="editDay${i}" value="6" ${dias.includes(6)?"checked":""}>Sab</label>
+        <label><input type="checkbox" class="editDay${i}" value="0" ${dias.includes(0)?"checked":""}>Dom</label>
+      </div>
+      <button onclick="salvarEdicao(${i})">Salvar</button>
+    </div>`;
   });
 }
 
 function salvarEdicao(i){
   let time=document.getElementById("editTime"+i).value;
   let nome=document.getElementById("editName"+i).value;
-  let days=[];
-  document.querySelectorAll(".editDay"+i+":checked").forEach(d=>{days.push(parseInt(d.value));});
+  let days=[]; document.querySelectorAll(".editDay"+i+":checked").forEach(d=>days.push(parseInt(d.value)));
   if(!rotina[i].id) rotina[i].id = time + "|" + nome;
-  rotina[i]={time:time,task:nome,days:days,id:rotina[i].id};
+  rotina[i] = {time, task:nome, days, id: rotina[i].id};
   localStorage.setItem("rotina",JSON.stringify(rotina));
   renderTasks();
   alert("Tarefa atualizada");
@@ -396,45 +215,31 @@ function criarTarefa(){
   let time=document.getElementById("novoHorario").value;
   let nome=document.getElementById("novoNome").value;
   if(!time || !nome){ alert("Preencha tudo"); return; }
-  let days=[];
-  document.querySelectorAll("#criarTarefa .days input:checked").forEach(d=>{days.push(parseInt(d.value));});
-  const tarefaId = time + "|" + nome;
-  rotina.push({time:time,task:nome,days:days,id:tarefaId});
+  let days=[]; document.querySelectorAll("#criarTarefa .days input:checked").forEach(d=>days.push(parseInt(d.value)));
+  const tarefaId = time + "|" + nome + "|" + Date.now(); // garante ID único
+  rotina.push({time, task:nome, days, id: tarefaId});
   localStorage.setItem("rotina",JSON.stringify(rotina));
-  renderTasks();
-  renderEditar();
-  renderExcluir();
+  renderTasks(); renderEditar(); renderExcluir();
   alert("Tarefa criada");
 }
 
 function renderExcluir(){
-  let lista=document.getElementById("excluirLista");
-  lista.innerHTML="";
-  rotina.forEach((r,i)=>{
-    lista.innerHTML+=`<div class="card">${r.time} - ${r.task}<br><br><button onclick="excluirTarefa(${i})">Excluir</button></div>`;
-  });
+  let lista=document.getElementById("excluirLista"); lista.innerHTML="";
+  rotina.forEach((r,i)=>{ lista.innerHTML+=`<div class="card">${r.time} - ${r.task}<br><br><button onclick="excluirTarefa(${i})">Excluir</button></div>`; });
 }
 
 function excluirTarefa(i){
   rotina.splice(i,1);
   localStorage.setItem("rotina",JSON.stringify(rotina));
-  renderTasks();
-  renderExcluir();
-  renderEditar();
+  renderTasks(); renderEditar(); renderExcluir();
   alert("Tarefa removida");
 }
 
-renderEditar();
-renderExcluir();
-
-/* tarefas */
-
+/* CONCLUIR TAREFAS */
 function done(id){
-  const tarefa = rotina.find(t=>t.id===id);
-  if(!tarefa) return;
+  const tarefa = rotina.find(t=>t.id===id); if(!tarefa) return;
   const cardIndex = tarefasHoje().findIndex(t=>t.id===id);
-  const card=document.getElementById("task"+cardIndex);
-  card.classList.toggle("done");
+  const card=document.getElementById("task"+cardIndex); card.classList.toggle("done");
   const hoje = new Date().toDateString();
   let tarefasConcluidas = JSON.parse(localStorage.getItem("tasksDone") || "{}");
   if(!tarefasConcluidas[hoje]) tarefasConcluidas[hoje] = [];
@@ -444,53 +249,39 @@ function done(id){
     tarefasConcluidas[hoje].push(id);
   }
   localStorage.setItem("tasksDone", JSON.stringify(tarefasConcluidas));
-  updateProgress();
-  updateNext();
+  updateProgress(); updateNext();
 }
 
+/* PROGRESSO / PRÓXIMA TAREFA */
 function updateProgress(){
-  let total = tarefasHoje().length;
-  if(total === 0){
-    document.getElementById("progress").style.width="0%";
-    document.getElementById("progressText").innerText="0%";
-    return;
-  }
+  let total = tarefasHoje().length; if(total===0){document.getElementById("progress").style.width="0%";document.getElementById("progressText").innerText="0%";return;}
   let hoje = new Date().toDateString();
   let tarefasConcluidas = JSON.parse(localStorage.getItem("tasksDone") || "{}");
   let percent = Math.floor((tarefasConcluidas[hoje]?.length || 0)/total*100);
-  if(percent > 100) percent=100;
+  if(percent>100) percent=100;
   document.getElementById("progress").style.width = percent + "%";
   document.getElementById("progressText").innerText = percent + "%";
 }
 
 function updateNext(){
   let next=document.getElementById("nextTask");
-  let lista=tarefasHoje();
-  if(lista.length===0){ next.innerText="Nenhuma tarefa para hoje"; return; }
+  let lista=tarefasHoje(); if(lista.length===0){next.innerText="Nenhuma tarefa para hoje"; return;}
   let hoje = new Date().toDateString();
   let tarefasConcluidas = JSON.parse(localStorage.getItem("tasksDone") || "{}");
-  if((tarefasConcluidas[hoje]?.length||0) >= lista.length){ next.innerText="✅ Todas as tarefas concluídas"; return; }
-  let now=new Date();
-  let current=now.getHours()*60+now.getMinutes();
-  for(let r of lista){
-    let parts=r.time.split(":");
-    let t=parseInt(parts[0])*60+parseInt(parts[1]);
-    if(t>current){ next.innerText=r.time+" - "+r.task; return; }
-  }
+  if((tarefasConcluidas[hoje]?.length||0) >= lista.length){ next.innerText="✅ Todas as tarefas concluídas"; return;}
+  let now=new Date(); let current=now.getHours()*60+now.getMinutes();
+  for(let r of lista){ let parts=r.time.split(":"); let t=parseInt(parts[0])*60+parseInt(parts[1]); if(t>current){ next.innerText=r.time+" - "+r.task; return;} }
   next.innerText="Sem tarefas restantes hoje";
 }
 
-/* água */
-
+/* ÁGUA */
 let water=parseInt(localStorage.getItem("water")||0);
-
 function updateWater(){ document.getElementById("waterCount").innerText=water+" / 8"; }
 function addWater(){ if(water<8){ water++; localStorage.setItem("water",water); updateWater(); } }
 function resetWater(){ water=0; localStorage.setItem("water",water); updateWater(); }
 updateWater();
 
-/* notificações */
-
+/* NOTIFICAÇÕES */
 function ativarAvisos(){
   if(Notification.permission!=="granted"){
     Notification.requestPermission().then(p=>{if(p==="granted") alert("Notificações ativadas!");});
@@ -517,15 +308,7 @@ function verificarNotificacoes(){
 setInterval(verificarNotificacoes, 10000); // 10s
 
 /* INICIALIZAÇÃO */
-
-renderTasks();
-renderEditar();
-renderExcluir();
-updateProgress();
-updateNext();
-updateWater();
-
+renderTasks(); renderEditar(); renderExcluir(); updateProgress(); updateNext();
 </script>
-
 </body>
 </html>
