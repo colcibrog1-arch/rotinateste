@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -68,6 +67,11 @@ border-radius:6px;
 border:none;
 }
 
+.days label{
+margin-right:8px;
+font-size:13px;
+}
+
 .done{
 opacity:.4;
 text-decoration:line-through;
@@ -123,33 +127,12 @@ font-size:28px;
 margin:10px 0;
 }
 
-#perfectDay{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:#000;
-display:none;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-font-size:30px;
-font-weight:700;
-z-index:999;
-}
-
 </style>
 </head>
 
 <body>
 
 <header>💪 Rotina do Shape</header>
-
-<div id="perfectDay">
-🏆 DIA PERFEITO<br>
-+1 STREAK
-</div>
 
 <!-- HOME -->
 
@@ -267,6 +250,16 @@ Horário
 Nome
 <input type="text" id="novoNome">
 
+<div class="days">
+<label><input type="checkbox" value="1">Seg</label>
+<label><input type="checkbox" value="2">Ter</label>
+<label><input type="checkbox" value="3">Qua</label>
+<label><input type="checkbox" value="4">Qui</label>
+<label><input type="checkbox" value="5">Sex</label>
+<label><input type="checkbox" value="6">Sab</label>
+<label><input type="checkbox" value="0">Dom</label>
+</div>
+
 <button onclick="criarTarefa()">Criar</button>
 
 <br><br>
@@ -307,15 +300,18 @@ Nome
 <script>
 
 let rotina = JSON.parse(localStorage.getItem("rotina")) || [
-
-{time:"05:10",task:"Aveia + Leite + Creatina"},
-{time:"07:30",task:"Whey + Creatina"},
-{time:"10:00",task:"Fruta"},
-{time:"12:00",task:"Almoço + Creatina"},
-{time:"19:00",task:"Hipercalórico"},
-{time:"23:00",task:"Jantar + Creatina + Vitaminas"}
-
+{time:"05:10",task:"Aveia + Leite + Creatina",days:[1,2,3,4,5]},
+{time:"07:30",task:"Whey + Creatina",days:[1,2,3,4,5]},
+{time:"10:00",task:"Fruta",days:[0,1,2,3,4,5,6]},
+{time:"12:00",task:"Almoço + Creatina",days:[1,2,3,4,5]},
+{time:"19:00",task:"Hipercalórico",days:[1,2,3,4,5]},
+{time:"23:00",task:"Jantar + Creatina + Vitaminas",days:[0,1,2,3,4,5,6]}
 ];
+
+function tarefasHoje(){
+let hoje=new Date().getDay();
+return rotina.filter(t=>!t.days || t.days.includes(hoje));
+}
 
 function openPage(id,el){
 
@@ -343,14 +339,12 @@ document.getElementById(id).classList.add("active");
 
 }
 
-/* ---------- ROTINA ---------- */
-
 function renderTasks(){
 
 const tasksDiv=document.getElementById("tasks");
 tasksDiv.innerHTML="";
 
-rotina.forEach((r,i)=>{
+tarefasHoje().forEach((r,i)=>{
 
 let card=document.createElement("div");
 card.className="card";
@@ -370,14 +364,14 @@ tasksDiv.appendChild(card);
 
 renderTasks();
 
-/* ---------- EDITAR ---------- */
-
 function renderEditar(){
 
 let lista=document.getElementById("editarLista");
 lista.innerHTML="";
 
 rotina.forEach((r,i)=>{
+
+let dias=r.days||[];
 
 lista.innerHTML+=`
 
@@ -388,6 +382,16 @@ Horário
 
 Nome
 <input type="text" value="${r.task}" id="editName${i}">
+
+<div class="days">
+<label><input type="checkbox" class="editDay${i}" value="1" ${dias.includes(1)?"checked":""}>Seg</label>
+<label><input type="checkbox" class="editDay${i}" value="2" ${dias.includes(2)?"checked":""}>Ter</label>
+<label><input type="checkbox" class="editDay${i}" value="3" ${dias.includes(3)?"checked":""}>Qua</label>
+<label><input type="checkbox" class="editDay${i}" value="4" ${dias.includes(4)?"checked":""}>Qui</label>
+<label><input type="checkbox" class="editDay${i}" value="5" ${dias.includes(5)?"checked":""}>Sex</label>
+<label><input type="checkbox" class="editDay${i}" value="6" ${dias.includes(6)?"checked":""}>Sab</label>
+<label><input type="checkbox" class="editDay${i}" value="0" ${dias.includes(0)?"checked":""}>Dom</label>
+</div>
 
 <button onclick="salvarEdicao(${i})">Salvar</button>
 
@@ -404,7 +408,12 @@ function salvarEdicao(i){
 let time=document.getElementById("editTime"+i).value;
 let nome=document.getElementById("editName"+i).value;
 
-rotina[i]={time:time,task:nome};
+let days=[];
+document.querySelectorAll(".editDay"+i+":checked").forEach(d=>{
+days.push(parseInt(d.value));
+});
+
+rotina[i]={time:time,task:nome,days:days};
 
 localStorage.setItem("rotina",JSON.stringify(rotina));
 
@@ -413,8 +422,6 @@ renderTasks();
 alert("Tarefa atualizada");
 
 }
-
-/* ---------- CRIAR ---------- */
 
 function criarTarefa(){
 
@@ -426,17 +433,22 @@ alert("Preencha tudo");
 return;
 }
 
-rotina.push({time:time,task:nome});
+let days=[];
+document.querySelectorAll("#criarTarefa .days input:checked").forEach(d=>{
+days.push(parseInt(d.value));
+});
+
+rotina.push({time:time,task:nome,days:days});
 
 localStorage.setItem("rotina",JSON.stringify(rotina));
 
 renderTasks();
+renderEditar();
+renderExcluir();
 
 alert("Tarefa criada");
 
 }
-
-/* ---------- EXCLUIR ---------- */
 
 function renderExcluir(){
 
@@ -471,6 +483,7 @@ localStorage.setItem("rotina",JSON.stringify(rotina));
 
 renderTasks();
 renderExcluir();
+renderEditar();
 
 alert("Tarefa removida");
 
@@ -479,9 +492,9 @@ alert("Tarefa removida");
 renderEditar();
 renderExcluir();
 
-/* ---------- SISTEMA DE TAREFAS ---------- */
+/* tarefas */
 
-let tasksDone = JSON.parse(localStorage.getItem("tasksDone") || "[]");
+let tasksDone=JSON.parse(localStorage.getItem("tasksDone")||"[]");
 
 function done(i){
 
@@ -504,13 +517,12 @@ updateNext();
 
 function updateProgress(){
 
-let percent=Math.floor((tasksDone.length/rotina.length)*100);
+let total=tarefasHoje().length;
 
-let bar=document.getElementById("progress");
-let text=document.getElementById("progressText");
+let percent=Math.floor((tasksDone.length/total)*100);
 
-if(bar) bar.style.width=percent+"%";
-if(text) text.innerText=percent+"%";
+document.getElementById("progress").style.width=percent+"%";
+document.getElementById("progressText").innerText=percent+"%";
 
 }
 
@@ -518,30 +530,24 @@ function updateNext(){
 
 let next=document.getElementById("nextTask");
 
-if(!next) return;
+let lista=tarefasHoje();
 
-if(tasksDone.length===rotina.length){
-
+if(tasksDone.length===lista.length){
 next.innerText="✅ Todas as tarefas concluídas";
-
 return;
-
 }
 
 let now=new Date();
 let current=now.getHours()*60+now.getMinutes();
 
-for(let r of rotina){
+for(let r of lista){
 
 let parts=r.time.split(":");
 let t=parseInt(parts[0])*60+parseInt(parts[1]);
 
 if(t>current){
-
 next.innerText=r.time+" - "+r.task;
-
 return;
-
 }
 
 }
@@ -551,41 +557,31 @@ return;
 updateProgress();
 updateNext();
 
-/* ---------- SISTEMA DE ÁGUA ---------- */
+/* água */
 
 let water=parseInt(localStorage.getItem("water")||0);
 
 function updateWater(){
-
-let el=document.getElementById("waterCount");
-
-if(el){
-el.innerText=water+" / 8";
-}
-
+document.getElementById("waterCount").innerText=water+" / 8";
 }
 
 function addWater(){
-
 if(water<8){
 water++;
 localStorage.setItem("water",water);
 updateWater();
 }
-
 }
 
 function resetWater(){
-
 water=0;
 localStorage.setItem("water",water);
 updateWater();
-
 }
 
 updateWater();
 
-/* ---------- NOTIFICAÇÕES ---------- */
+/* notificações */
 
 function ativarAvisos(){
 
